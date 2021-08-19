@@ -6,7 +6,7 @@ pygame.init()
 
 def display_score():
     current_time = int(pygame.time.get_ticks() / 1000) - start_time
-    score_surf = pixel_font.render(f'score: {current_time}', False, (255, 255, 255))
+    score_surf = large_font.render(f'score: {current_time}', False, (255, 255, 255))
     score_rect = score_surf.get_rect(center=(SCREEN_WIDTH/2, 50))
     screen.blit(score_surf, score_rect)
     return current_time
@@ -35,7 +35,7 @@ def collisions(player, obstacles):
 SCREEN_WIDTH, SCREEN_HEIGHT = (800, 400)
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-game_version = '0.0.0'  # current version of the game (major update, minor update, path/fixes)
+game_version = '0.0.1'  # current version of the game (major update, minor update, path/fixes)
 
 # window title setup
 WINDOW_TITLE = 'build : v' + game_version
@@ -50,36 +50,40 @@ game_active = False
 start_time = 0
 score = 0 
 
-pixel_font = pygame.font.Font('fonts/Pixeltype.ttf', 65)
+large_font = pygame.font.Font('fonts/Pixeltype.ttf', 50)
+small_font = pygame.font.Font('fonts/Pixeltype.ttf', 20)
 
-sky_surf = pygame.image.load('graphics/sky.png').convert()
 ground_surf = pygame.image.load('graphics/Ground.png').convert()
 
 # score_surf = pixel_font.render('SCORE', False, (255, 255, 255))
 # score_rect = score_surf.get_rect(center=(SCREEN_WIDTH / 2, 50))
 
 # obstacles
-snail_surf = pygame.image.load('graphics/snail/snail1.png').convert_alpha()
-fly_surf = pygame.image.load('graphics/fly/fly1.png').convert_alpha()
+snail_surf = pygame.image.load('graphics/turtle/turtle.png').convert_alpha()
+fly_surf = pygame.image.load('graphics/fly/fly.png').convert_alpha()
 
 obstacle_rect_list = []
 
+# how to jump text
+x_jump_text = small_font.render('press "X" to jump', False, (255, 255, 255))
+x_jump_text_rect = x_jump_text.get_rect(center= (60, 15))
+
 # player
-player_surf = pygame.image.load('graphics/player/player_walk_1.png').convert_alpha()
+player_surf = pygame.image.load('graphics/player/player.png').convert_alpha()
 player_rect = player_surf.get_rect(midbottom=(80, 300))
 player_gravity = 0
-gravity_pull = 0.7
+gravity_pull = 0.9
 jump_speed = -15
 
 # intro screen
 player_scale = 2
-player_stand = pygame.image.load('graphics/player/player_stand.png').convert_alpha()
-player_stand = pygame.transform.scale(player_stand, (68*player_scale, 84*player_scale))
+player_stand = pygame.image.load('graphics/player/player.png').convert_alpha()
+player_stand = pygame.transform.scale(player_stand, (45*player_scale, 75*player_scale))
 player_stand_rect = player_stand.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT/2))
 
-game_name = pixel_font.render('HOPPER', False, (255, 255, 255))
+game_name = large_font.render('[  JUMP  ]', False, (255, 255, 255))
 game_name_rect = game_name.get_rect(center=(SCREEN_WIDTH/2, 50))
-restart_text = pixel_font.render('space to play', False, (255, 255, 255))
+restart_text = large_font.render('press "Z" to start', False, (255, 255, 255))
 restart_text_rect = restart_text.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT-50))
 
 # timer
@@ -101,12 +105,12 @@ while game_running:
                 if player_rect.collidepoint(event.pos):
                     player_gravity = jump_speed
 
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                if player_rect.bottom >= 290:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_x:
+                if player_rect.bottom >= 160:
                     player_gravity = jump_speed
         
         else: # if game !active
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_z:
                 game_active = True
                 start_time = 0
                 start_time = int(pygame.time.get_ticks() / 1000) - start_time
@@ -119,7 +123,8 @@ while game_running:
 
     if game_active: # game
         # background
-        screen.blit(sky_surf, (0, 0))
+        # screen.blit(sky_surf, (0, 0))
+        screen.fill('#181425')
         screen.blit(ground_surf, (0, 300))
 
         # snail
@@ -142,13 +147,13 @@ while game_running:
         # collisions
         game_active = collisions(player_rect, obstacle_rect_list)
 
-        # HUD / score
-        # screen.blit(score_surf, score_rect)
+        # HUD
         score = display_score()
+        screen.blit(x_jump_text, x_jump_text_rect)
     else: # intro/game over screen
         # background
-        screen.fill('black')
-        screen.blit(sky_surf, (0, 0))
+        screen.fill('#181425')
+        # screen.blit(sky_surf, (0, 0))
 
         # clear all enemies / reset players position when game is over
         obstacle_rect_list.clear()
@@ -156,7 +161,7 @@ while game_running:
         player_gravity = 0
  
         # score / HUD
-        score_display = pixel_font.render(f'score: {score}', False, (255, 255, 255))
+        score_display = large_font.render(f'score: {score}', False, (255, 255, 255))
         score_display_rect = score_display.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT-50))
         if score == 0:
             screen.blit(restart_text, restart_text_rect)
